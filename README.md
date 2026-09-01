@@ -1,4 +1,4 @@
-# SKY HOME FURNISHING — Production Luxury Full-Stack Platform
+# Vayora Interiors — Production Luxury Full-Stack Platform
 
 > Production-grade full-stack web application for **SKY HOME FURNISHING** — an architectural luxury home furnishing & interior lifestyle brand.
 
