@@ -1,0 +1,21 @@
+{
+  "name": "sky-home-furnishing",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --prefix apps/frontend run dev",
+    "dev:backend": "npm --prefix apps/backend run dev",
+    "build:frontend": "npm --prefix apps/frontend run build",
+    "build:backend": "npm --prefix apps/backend run build",
+    "test": "npm --prefix apps/backend run test && npm --prefix apps/frontend run test",
+    "db:seed": "npm --prefix apps/backend run db:seed",
+    "db:migrate": "npm --prefix apps/backend run db:migrate"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
