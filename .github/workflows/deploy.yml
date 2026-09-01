@@ -72,7 +72,56 @@ jobs:
       - name: Run Docker Compose Health Smoke Test
         run: |
           cd docker
+           echo "=== Starting Docker Compose ==="
           docker compose up -d
-          sleep 10
-          curl -f http://localhost/api/health || exit 1
-          docker compose down
+
+          echo "=== Container Status ==="
+          docker compose ps
+
+          echo "=== Waiting for application health ==="
+
+          for i in {1..30}; do
+            if curl -fsS http://localhost/api/health; then
+              echo ""
+              echo "======================================"
+              echo "Health check passed!"
+              echo "======================================"
+              exit 0
+            fi
+
+            echo "Attempt $i/30 failed. Waiting 2 seconds..."
+            sleep 2
+          done
+
+          echo ""
+          echo "======================================"
+          echo "Health check failed!"
+          echo "======================================"
+
+          echo ""
+          echo "=== Container Status ==="
+          docker compose ps
+
+          echo ""
+          echo "=== Backend Logs ==="
+          docker compose logs backend --tail=100 || true
+
+          echo ""
+          echo "=== Nginx Logs ==="
+          docker compose logs nginx --tail=100 || true
+
+          echo ""
+          echo "=== PostgreSQL Logs ==="
+          docker compose logs postgres --tail=50 || true
+
+          echo ""
+          echo "=== Redis Logs ==="
+          docker compose logs redis --tail=50 || true
+
+          exit 1
+
+      - name: Stop Docker Compose
+        if: always()
+        run: |
+          cd docker
+          docker compose down -v
