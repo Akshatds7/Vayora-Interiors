@@ -45,13 +45,13 @@ jobs:
       - name: Generate Prisma Client
         run: npm --prefix apps/backend run db:generate
         env:
-          DATABASE_URL: postgresql://postgres:postgrespassword2026@localhost:5432/skyhome_db_test
+          DATABASE_URL: postgresql://postgres:postgrespassword2026@localhost:5433/skyhome_db_test
 
       - name: Run Backend Integration & Unit Tests
         run: npm --prefix apps/backend run test
         env:
           JWT_SECRET: test_secret_key_2026
-          DATABASE_URL: postgresql://postgres:postgrespassword2026@localhost:5432/skyhome_db_test
+          DATABASE_URL: postgresql://postgres:postgrespassword2026@localhost:5433/skyhome_db_test
 
       - name: Type Check & Build Backend
         run: npm --prefix apps/backend run build
