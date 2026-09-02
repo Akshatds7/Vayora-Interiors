@@ -1,37 +1,65 @@
 # Dockerfile for Express Node.js Backend
-FROM node:20-alpine AS builder
+
+# =========================
+# Builder
+# =========================
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
+
+# Prisma requires OpenSSL
 RUN apt-get update \
     && apt-get install -y openssl \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy package manifests
 COPY package*.json ./
 COPY packages/types/package*.json ./packages/types/
 COPY apps/backend/package*.json ./apps/backend/
 
+# Install dependencies
 RUN npm install
 
+# Copy source code
 COPY packages/types ./packages/types
 COPY apps/backend ./apps/backend
 
+# Build shared types
 RUN npm --prefix packages/types run build
+
+# Generate Prisma client
 RUN npm --prefix apps/backend run db:generate
+
+# Build backend
 RUN npm --prefix apps/backend run build
 
-FROM node:20-alpine AS runner
+
+# =========================
+# Production
+# =========================
+FROM node:20-bookworm-slim AS runner
+
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV PORT 5000
+ENV NODE_ENV=production
+ENV PORT=5000
 ENV HOST=0.0.0.0
 
-# Install OpenSSL required by Prisma
+# Prisma requires OpenSSL
 RUN apt-get update \
     && apt-get install -y openssl \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy built backend
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+
+# Copy Prisma files
 COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
+
+# Copy backend package files
 COPY --from=builder /app/apps/backend/package*.json ./apps/backend/
+
+# Copy node_modules
 COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 5000
